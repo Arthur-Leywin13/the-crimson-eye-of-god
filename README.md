@@ -6,7 +6,7 @@ A privacy-conscious OSINT web workspace for discovering **publicly accessible us
 
 ## Current MVP
 
-- Global username search catalogue across Instagram, Telegram, Facebook, X, Threads, TikTok, YouTube, Linktree and LinkedIn.
+- Authorized self-audit search catalogue across Instagram, Telegram, Facebook, X, Threads, TikTok, YouTube, Linktree and LinkedIn.
 - Platform explorer with per-platform filtering.
 - Username variant generation.
 - Direct links to public profile routes.
@@ -38,6 +38,10 @@ uvicorn api.main:app --reload --port 8000
 ```
 
 API docs: http://localhost:8000/docs
+
+## Responsible-use gate
+
+The interface requires the user to confirm that they own the account or have explicit permission to audit it. The FastAPI endpoint independently enforces the same authorization flag and returns HTTP 403 when it is absent. This is an accountability safeguard, not identity verification; it cannot prove that a user owns an account. Use the tool only for your own accounts or a clearly authorized audit.
 
 ## Platform limitations
 
