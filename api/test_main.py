@@ -16,10 +16,10 @@ def test_global_search_returns_all_supported_platforms():
     assert response.status_code == 200
     payload = response.json()
     assert payload["mode"] == "global"
-    assert len(payload["results"]) == 9
+    assert len(payload["results"]) == 10
     assert {item["platform_id"] for item in payload["results"]} >= {
         "instagram", "telegram", "facebook", "x", "threads",
-        "tiktok", "youtube", "linktree", "linkedin",
+        "tiktok", "youtube", "linktree", "linkedin", "github",
     }
     assert all(item["verification"] == "manual_required" for item in payload["results"])
 
