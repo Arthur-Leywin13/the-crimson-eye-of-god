@@ -16,4 +16,5 @@ export const PLATFORMS: Platform[] = [
   { id: "youtube", name: "YouTube", domain: "youtube.com", symbol: "▶", profileUrl: (h) => `https://www.youtube.com/@${encodeURIComponent(h)}` },
   { id: "linktree", name: "Linktree", domain: "linktr.ee", symbol: "↗", profileUrl: (h) => `https://linktr.ee/${encodeURIComponent(h)}` },
   { id: "linkedin", name: "LinkedIn", domain: "linkedin.com", symbol: "in", profileUrl: (h) => `https://www.linkedin.com/in/${encodeURIComponent(h)}` },
+  { id: "github", name: "GitHub", domain: "github.com", symbol: "⌘", profileUrl: (h) => `https://github.com/${encodeURIComponent(h)}` },
 ];
