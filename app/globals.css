@@ -8,3 +8,5 @@
 
 .export-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin:12px 0}.export-actions>span{font:500 8px 'DM Mono',monospace;letter-spacing:1px;color:#a09d95;margin-right:auto}.export-actions button{border:1px solid var(--line);background:var(--surface);border-radius:4px;padding:8px 11px;color:#6e6b64;font:600 9px Manrope;cursor:pointer}.export-actions button:hover{border-color:#bda5a7;color:var(--crimson)}.export-actions button:focus-visible{outline:2px solid var(--crimson);outline-offset:2px}
 @media(max-width:650px){.export-actions{flex-wrap:wrap;justify-content:flex-start}.export-actions>span{width:100%;margin-bottom:2px}}
+
+.authorization-check{display:flex;align-items:flex-start;gap:9px;margin-top:15px;color:#77756e;font:11px/1.5 'DM Sans',sans-serif;cursor:pointer}.authorization-check input{width:14px;height:14px;accent-color:var(--crimson);margin:1px 0 0;flex:0 0 auto}.authorization-check:focus-within{outline:2px solid var(--crimson);outline-offset:4px;border-radius:2px}
