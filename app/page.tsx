@@ -9,6 +9,7 @@ type Mode = "global" | "platform";
 
 export default function Home() {
   const [username, setUsername] = useState("");
+  const [authorized, setAuthorized] = useState(false);
   const [mode, setMode] = useState<Mode>("global");
   const [selectedPlatform, setSelectedPlatform] = useState(PLATFORMS[0].id);
   const [searched, setSearched] = useState(false);
@@ -26,7 +27,7 @@ export default function Home() {
 
   function runSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!normalized) return;
+    if (!normalized || !authorized) return;
     setSearched(true);
     setSearchedUsername(normalized);
     setShowVariants(false);
@@ -97,8 +98,9 @@ export default function Home() {
             <div className="panel-heading"><div><span className="eyebrow">NEW INVESTIGATION</span><h2>Start with a username</h2></div><span className="step-tag">01 / SEARCH</span></div>
             <form onSubmit={runSearch}>
               <label htmlFor="username">USERNAME OR HANDLE</label>
-              <div className="input-wrap"><span className="at-sign">@</span><input id="username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder="e.g. arthurleywin" autoComplete="off" /><button type="submit" disabled={!normalized}>Initiate search <span>↗</span></button></div>
+              <div className="input-wrap"><span className="at-sign">@</span><input id="username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder="e.g. arthurleywin" autoComplete="off" /><button type="submit" disabled={!normalized || !authorized}>Initiate search <span>↗</span></button></div>
             </form>
+            <label className="authorization-check"><input type="checkbox" checked={authorized} onChange={(event) => setAuthorized(event.target.checked)} /><span>I own this account or have explicit permission to audit it.</span></label>
             <div className="search-options">
               <div className="mode-switch" role="group" aria-label="Search mode">
                 <button className={mode === "global" ? "selected" : ""} onClick={() => { setMode("global"); setActiveFilter("all"); }} type="button">Global search <span>All platforms</span></button>
