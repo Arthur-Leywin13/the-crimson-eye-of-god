@@ -37,6 +37,7 @@ PLATFORMS = {
 class SearchRequest(BaseModel):
     username: str = Field(min_length=2, max_length=30)
     platform: str | None = None
+    authorized: bool = False
 
 
 def normalize_handle(value: str) -> str:
@@ -72,6 +73,12 @@ def health() -> dict[str, str]:
 
 @app.post("/api/search")
 def search(payload: SearchRequest) -> dict:
+    if not payload.authorized:
+        raise HTTPException(
+            status_code=403,
+            detail="This tool is limited to accounts you own or are authorized to audit.",
+        )
+
     handle = normalize_handle(payload.username)
     platform_filter = payload.platform.lower() if payload.platform else None
     if platform_filter and platform_filter not in PLATFORMS:
