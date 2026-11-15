@@ -50,7 +50,7 @@ export default function ResultsClient({ username, platform }: { username: string
         if (active) {
           setResults(payload.results || []);
           setVariants(payload.variants || []);
-          if (!selected && payload.results?.[0]) setSelected(payload.results[0].platform_id);
+          setSelected(platform || payload.results?.[0]?.platform_id || "");
         }
       } catch (cause) {
         if (active) setError(cause instanceof Error ? cause.message : "Unable to load results.");
