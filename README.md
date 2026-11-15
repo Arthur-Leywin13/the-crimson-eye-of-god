@@ -8,6 +8,7 @@ A privacy-conscious OSINT web workspace for discovering **publicly accessible us
 
 - Authorized self-audit search catalogue across Instagram, Telegram, Facebook, X, Threads, TikTok, YouTube, Linktree and LinkedIn.
 - Platform explorer with per-platform filtering.
+- Validated Next.js search endpoint (`POST /api/search`) used by the interface, with authorization confirmation, handle validation and clear error responses.
 - Username variant generation.
 - Direct links to public profile routes.
 - Clear status labels: **Link prepared / manual verification required**. A profile URL returning an error, redirect, login wall or anti-bot challenge is not treated as proof that a username is available.
@@ -26,6 +27,10 @@ npm run dev
 ```
 
 Open http://localhost:3000.
+
+## Search endpoint
+
+The frontend submits searches to its own `/api/search` route. This route prepares candidate profile links and username variants without contacting social platforms or checking whether an account exists. The standalone FastAPI service remains available for integrations and local API testing.
 
 ## Run the API
 
