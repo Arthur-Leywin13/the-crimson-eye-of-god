@@ -39,7 +39,7 @@ def test_single_platform_search():
 def test_unknown_platform_is_rejected():
     response = client.post(
         "/api/search",
-        json={"username": "sample_handle", "platform": "unknown"},
+        json={"username": "sample_handle", "platform": "unknown", "authorized": True},
     )
     assert response.status_code == 404
 
