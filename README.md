@@ -12,7 +12,7 @@ A privacy-conscious OSINT web workspace for discovering **publicly accessible us
 - Username variant generation.
 - Dedicated results page with platform cards and a selected-result detail panel.
 - GitHub public avatar and basic profile fields retrieved through GitHub's official public API.
-- Direct links to public profile routes.
+- Public Web Search section powered by Brave Search API, showing indexed page titles, short snippets and original source links (no page scraping or identity matching).\n- Direct links to public profile routes.
 - Clear status labels: **Link prepared / manual verification required**. A profile URL returning an error, redirect, login wall or anti-bot challenge is not treated as proof that a username is available.
 - Ash-grey premium Light Intelligence interface with muted crimson accents.
 
@@ -32,9 +32,9 @@ Open http://localhost:3000.
 
 ## Search endpoint
 
-The frontend submits searches to its own `/api/search` route. It prepares candidate links and username variants. For GitHub only, it queries the official public user endpoint to retrieve an exact username match, avatar and basic public profile fields. Other platforms are not scraped and remain unverified candidate links. The standalone FastAPI service remains available for integrations and local API testing.
+The frontend submits searches to its own `/api/search` route. It prepares candidate links and username variants. The results page also offers a separate, manual public-web-index search through `POST /api/web-search`. For GitHub only, it queries the official public user endpoint to retrieve an exact username match, avatar and basic public profile fields. Other platforms are not scraped and remain unverified candidate links. The web search route uses Brave Search API and requires the server-side `BRAVE_SEARCH_API_KEY` environment variable. It returns search-index titles, short snippets and source URLs only; it does not crawl pages or establish that results belong to the same person. The standalone FastAPI service remains available for integrations and local API testing.
 
-## Run the API
+## Configure public web search\n\nCreate a Brave Search API key in the Brave Search API dashboard, then add it as a server-side environment variable:\n\n```env\nBRAVE_SEARCH_API_KEY=your_key_here\n```\n\nDo not commit the key, expose it in frontend code, or paste it into public issues. Without this variable, the public web search panel displays a setup message and the rest of the app continues to work. Brave API documentation: https://api-dashboard.search.brave.com/app/documentation/web-search.\n\n## Run the API
 
 ```bash
 python -m venv .venv
