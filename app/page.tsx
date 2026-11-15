@@ -12,11 +12,12 @@ export default function Home() {
   const [mode, setMode] = useState<Mode>("global");
   const [selectedPlatform, setSelectedPlatform] = useState(PLATFORMS[0].id);
   const [searched, setSearched] = useState(false);
+  const [searchedUsername, setSearchedUsername] = useState("");
   const [showVariants, setShowVariants] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
 
   const normalized = username.trim().replace(/^@/, "");
-  const variants = useMemo(() => makeVariants(normalized), [normalized]);
+  const variants = useMemo(() => makeVariants(searchedUsername || normalized), [searchedUsername, normalized]);
   const visiblePlatforms = mode === "platform"
     ? PLATFORMS.filter((platform) => platform.id === selectedPlatform)
     : activeFilter === "all"
@@ -27,12 +28,36 @@ export default function Home() {
     event.preventDefault();
     if (!normalized) return;
     setSearched(true);
+    setSearchedUsername(normalized);
     setShowVariants(false);
     setActiveFilter(mode === "global" ? "all" : selectedPlatform);
   }
 
   function profileUrl(platform: Platform, handle: string) {
     return platform.profileUrl(handle);
+  }
+
+  function exportReport(format: "json" | "csv") {
+    if (!searchedUsername) return;
+    const rows = visiblePlatforms.map((platform) => ({
+      platform: platform.name,
+      username: searchedUsername,
+      profile_url: profileUrl(platform, searchedUsername),
+      status: "link_prepared",
+      verification: "manual_required",
+    }));
+    const csv = [
+      ["platform", "username", "profile_url", "status", "verification"],
+      ...rows.map((row) => [row.platform, row.username, row.profile_url, row.status, row.verification]),
+    ].map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(",")).join("\\n");
+    const content = format === "json" ? JSON.stringify({ query: searchedUsername, results: rows, note: "Candidate links only; profiles are not confirmed." }, null, 2) : csv;
+    const blob = new Blob([content], { type: format === "json" ? "application/json" : "text/csv;charset=utf-8" });
+    const objectUrl = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = objectUrl;
+    anchor.download = `crimson-eye-${searchedUsername}-${format}.${format}`;
+    anchor.click();
+    URL.revokeObjectURL(objectUrl);
   }
 
   return (
@@ -90,10 +115,11 @@ export default function Home() {
 
           {searched && <section className="results-section" id="results">
             <div className="section-heading"><div><span className="eyebrow">INVESTIGATION OUTPUT</span><h2>Search catalogue</h2></div><span className="count-pill">{visiblePlatforms.length.toString().padStart(2, "0")} DESTINATIONS</span></div>
-            <div className="result-summary"><div><span className="summary-label">SEARCHED HANDLE</span><strong>@{normalized}</strong></div><div><span className="summary-label">SEARCH MODE</span><strong>{mode === "global" ? "Global discovery" : "Single platform"}</strong></div><div><span className="summary-label">DESTINATIONS SHOWN</span><strong>{visiblePlatforms.length.toString().padStart(2, "0")} / 09</strong></div></div>
+            <div className="result-summary"><div><span className="summary-label">SEARCHED HANDLE</span><strong>@{searchedUsername}</strong></div><div><span className="summary-label">SEARCH MODE</span><strong>{mode === "global" ? "Global discovery" : "Single platform"}</strong></div><div><span className="summary-label">DESTINATIONS SHOWN</span><strong>{visiblePlatforms.length.toString().padStart(2, "0")} / 09</strong></div></div>
             {mode === "global" && <nav className="result-filters" aria-label="Filter results by platform"><button type="button" className={activeFilter === "all" ? "filter-chip active" : "filter-chip"} onClick={() => setActiveFilter("all")}>All platforms <span>09</span></button>{PLATFORMS.map((platform) => <button type="button" key={platform.id} className={activeFilter === platform.id ? "filter-chip active" : "filter-chip"} onClick={() => setActiveFilter(platform.id)}>{platform.name}</button>)}</nav>}
-            <div className="results-list">{visiblePlatforms.map((platform) => <article className="result-row" key={platform.id}><div className="result-platform"><span className="platform-symbol">{platform.symbol}</span><div><strong>{platform.name}</strong><small>{platform.domain}</small></div></div><div className="result-state"><span className="state-dot" /> Link prepared · verification required</div><a className="open-link" href={profileUrl(platform, normalized)} target="_blank" rel="noreferrer">Open profile <span>↗</span></a></article>)}</div>
+            <div className="results-list">{visiblePlatforms.map((platform) => <article className="result-row" key={platform.id}><div className="result-platform"><span className="platform-symbol">{platform.symbol}</span><div><strong>{platform.name}</strong><small>{platform.domain}</small></div></div><div className="result-state"><span className="state-dot" /> Link prepared · verification required</div><a className="open-link" href={profileUrl(platform, searchedUsername)} target="_blank" rel="noreferrer">Open profile <span>↗</span></a></article>)}</div>
             <div className="disclaimer">These are candidate profile URLs, not confirmed account matches. A platform may redirect, require sign-in, restrict access or return an inconclusive response. Verify identity using the platform itself and do not infer that a handle is available from a failed request.</div>
+            <div className="export-actions"><span>EXPORT CURRENT VIEW</span><button type="button" onClick={() => exportReport("json")}>Download JSON ↧</button><button type="button" onClick={() => exportReport("csv")}>Download CSV ↧</button></div>
             <button className="variant-toggle" onClick={() => setShowVariants((value) => !value)} type="button">{showVariants ? "Hide" : "Explore"} username variants <span>{showVariants ? "−" : "+"}</span></button>
             {showVariants && <div className="variant-list">{variants.map((variant) => <div key={variant}><span>@{variant}</span><button onClick={() => setUsername(variant)} type="button">Use handle ↗</button></div>)}</div>}
           </section>}
