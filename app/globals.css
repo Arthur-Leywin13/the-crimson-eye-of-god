@@ -10,3 +10,5 @@
 @media(max-width:650px){.export-actions{flex-wrap:wrap;justify-content:flex-start}.export-actions>span{width:100%;margin-bottom:2px}}
 
 .authorization-check{display:flex;align-items:flex-start;gap:9px;margin-top:15px;color:#77756e;font:11px/1.5 'DM Sans',sans-serif;cursor:pointer}.authorization-check input{width:14px;height:14px;accent-color:var(--crimson);margin:1px 0 0;flex:0 0 auto}.authorization-check:focus-within{outline:2px solid var(--crimson);outline-offset:4px;border-radius:2px}
+
+.search-error{margin:12px 0 0;padding:10px 12px;border:1px solid #dfc7ca;border-radius:5px;background:#f8eeee;color:#873b48;font:11px/1.5 'DM Sans',sans-serif}
