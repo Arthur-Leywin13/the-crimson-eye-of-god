@@ -94,6 +94,6 @@ export async function POST(request: Request) {
       profile: platform.id === "github" ? githubProfile : null,
     })),
     variants: makeVariants(username),
-    notice: "Candidate profile URLs only. Account existence and availability are not verified.",
+    notice: "GitHub is checked through its official public API. Other platforms return candidate profile URLs only and require manual verification.",
   });
 }
