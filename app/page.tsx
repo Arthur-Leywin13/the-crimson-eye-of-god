@@ -57,6 +57,10 @@ export default function Home() {
       setSearchedUsername(payload.query);
       setShowVariants(false);
       setActiveFilter(mode === "global" ? "all" : selectedPlatform);
+      const destination = new URL("/results", window.location.origin);
+      destination.searchParams.set("username", payload.query);
+      if (mode === "platform") destination.searchParams.set("platform", selectedPlatform);
+      window.location.assign(destination.toString());
     } catch (error) {
       setSearched(false);
       setSearchError(error instanceof Error ? error.message : "Unexpected search error.");
@@ -143,14 +147,14 @@ export default function Home() {
           </section>
 
           <section className="platform-section" id="platforms">
-            <div className="section-heading"><div><span className="eyebrow">NETWORK COVERAGE</span><h2>Platform catalogue</h2></div><span className="count-pill">09 PLATFORMS</span></div>
+            <div className="section-heading"><div><span className="eyebrow">NETWORK COVERAGE</span><h2>Platform catalogue</h2></div><span className="count-pill">10 PLATFORMS</span></div>
             <div className="platform-grid">{PLATFORMS.map((platform, index) => <button className="platform-tile platform-tile-button" key={platform.id} type="button" onClick={() => { setMode("platform"); setSelectedPlatform(platform.id); setActiveFilter(platform.id); document.getElementById("search")?.scrollIntoView({ behavior: "smooth" }); }}><span className="platform-index">0{index + 1}</span><span className="platform-symbol">{platform.symbol}</span><span className="platform-name">{platform.name}</span><span className="platform-arrow">↗</span></button>)}</div>
           </section>
 
           {searched && <section className="results-section" id="results">
             <div className="section-heading"><div><span className="eyebrow">INVESTIGATION OUTPUT</span><h2>Search catalogue</h2></div><span className="count-pill">{visiblePlatforms.length.toString().padStart(2, "0")} DESTINATIONS</span></div>
-            <div className="result-summary"><div><span className="summary-label">SEARCHED HANDLE</span><strong>@{searchedUsername}</strong></div><div><span className="summary-label">SEARCH MODE</span><strong>{mode === "global" ? "Global discovery" : "Single platform"}</strong></div><div><span className="summary-label">DESTINATIONS SHOWN</span><strong>{visiblePlatforms.length.toString().padStart(2, "0")} / 09</strong></div></div>
-            {mode === "global" && <nav className="result-filters" aria-label="Filter results by platform"><button type="button" className={activeFilter === "all" ? "filter-chip active" : "filter-chip"} onClick={() => setActiveFilter("all")}>All platforms <span>09</span></button>{PLATFORMS.map((platform) => <button type="button" key={platform.id} className={activeFilter === platform.id ? "filter-chip active" : "filter-chip"} onClick={() => setActiveFilter(platform.id)}>{platform.name}</button>)}</nav>}
+            <div className="result-summary"><div><span className="summary-label">SEARCHED HANDLE</span><strong>@{searchedUsername}</strong></div><div><span className="summary-label">SEARCH MODE</span><strong>{mode === "global" ? "Global discovery" : "Single platform"}</strong></div><div><span className="summary-label">DESTINATIONS SHOWN</span><strong>{visiblePlatforms.length.toString().padStart(2, "0")} / 10</strong></div></div>
+            {mode === "global" && <nav className="result-filters" aria-label="Filter results by platform"><button type="button" className={activeFilter === "all" ? "filter-chip active" : "filter-chip"} onClick={() => setActiveFilter("all")}>All platforms <span>10</span></button>{PLATFORMS.map((platform) => <button type="button" key={platform.id} className={activeFilter === platform.id ? "filter-chip active" : "filter-chip"} onClick={() => setActiveFilter(platform.id)}>{platform.name}</button>)}</nav>}
             <div className="results-list">{visiblePlatforms.map((platform) => <article className="result-row" key={platform.id}><div className="result-platform"><span className="platform-symbol">{platform.symbol}</span><div><strong>{platform.name}</strong><small>{platform.domain}</small></div></div><div className="result-state"><span className="state-dot" /> Link prepared · verification required</div><a className="open-link" href={profileUrl(platform, searchedUsername)} target="_blank" rel="noreferrer">Open profile <span>↗</span></a></article>)}</div>
             <div className="disclaimer">These are candidate profile URLs, not confirmed account matches. A platform may redirect, require sign-in, restrict access or return an inconclusive response. Verify identity using the platform itself and do not infer that a handle is available from a failed request.</div>
             <div className="export-actions"><span>EXPORT CURRENT VIEW</span><button type="button" onClick={() => exportReport("json")}>Download JSON ↧</button><button type="button" onClick={() => exportReport("csv")}>Download CSV ↧</button></div>
