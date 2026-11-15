@@ -33,6 +33,11 @@ export default function ResultsClient({ username, platform }: { username: string
   const [selected, setSelected] = useState(platform || "");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [webAuthorized, setWebAuthorized] = useState(false);
+  const [webLoading, setWebLoading] = useState(false);
+  const [webError, setWebError] = useState("");
+  const [webMessage, setWebMessage] = useState("");
+  const [webResults, setWebResults] = useState<Array<{ title: string; url: string; domain: string; snippet: string }>>([]);
 
   useEffect(() => {
     let active = true;
@@ -64,6 +69,29 @@ export default function ResultsClient({ username, platform }: { username: string
   }, [username, platform]);
 
   const current = useMemo(() => results.find((item) => item.platform_id === selected) || null, [results, selected]);
+
+  async function runPublicWebSearch() {
+    if (!webAuthorized || webLoading) return;
+    setWebLoading(true);
+    setWebError("");
+    setWebMessage("");
+    setWebResults([]);
+    try {
+      const response = await fetch("/api/web-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, authorized: true }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Web search failed.");
+      setWebResults(payload.results || []);
+      setWebMessage(payload.message || payload.notice || "No public search results were returned.");
+    } catch (cause) {
+      setWebError(cause instanceof Error ? cause.message : "Unable to search the public web.");
+    } finally {
+      setWebLoading(false);
+    }
+  }
 
   function selectResult(id: string) {
     setSelected(id);
@@ -144,7 +172,16 @@ export default function ResultsClient({ username, platform }: { username: string
             <div>{variants.filter((value) => value.toLowerCase() !== username.toLowerCase()).map((value) => <span key={value}>@{value}</span>)}</div>
           </section>
         )}
-        <p className="results-disclaimer">Only GitHub profile details are retrieved through its official public API. Other platforms currently show candidate links only. Use this workspace solely for accounts you own or have explicit permission to audit.</p>
+        <section className="public-web-search">
+          <div className="section-heading"><div><span className="eyebrow">PUBLIC WEB INDEX</span><h2>Pages mentioning @{username}</h2></div><span className="match-status">Source links only</span></div>
+          <p className="detail-note">Search the public web index for pages containing this exact handle. This does not access private accounts or prove that a result belongs to the account owner.</p>
+          <label className="authorization-check"><input type="checkbox" checked={webAuthorized} onChange={(event) => setWebAuthorized(event.target.checked)} /><span>I confirm this is my account or an audit I am explicitly authorized to perform.</span></label>
+          <button className="detail-open" type="button" disabled={!webAuthorized || webLoading} onClick={runPublicWebSearch}>{webLoading ? "Searching public index…" : "Search public web ↗"}</button>
+          {webError && <p className="results-message error" role="alert">{webError}</p>}
+          {webMessage && <p className="detail-note">{webMessage}</p>}
+          {webResults.length > 0 && <div className="web-results-list">{webResults.map((item, index) => <article className="web-result" key={item.url + index}><span className="eyebrow">{item.domain || "PUBLIC WEB"}</span><h3><a href={item.url} target="_blank" rel="noreferrer">{item.title}</a></h3>{item.snippet && <p>{item.snippet}</p>}<a className="web-result-url" href={item.url} target="_blank" rel="noreferrer">{item.url}</a></article>)}</div>}
+        </section>
+        <p className="results-disclaimer">Only public search-index titles, snippets and source links are displayed; the app does not scrape pages or infer that different results belong to the same person. Use this workspace solely for accounts you own or have explicit permission to audit.</p>
       </div>
     </main>
   );
