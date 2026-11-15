@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
 import { PLATFORMS, type Platform } from "@/lib/platforms";
-import { makeVariants } from "@/lib/variants";
 
 type Mode = "global" | "platform";
 
@@ -16,26 +15,58 @@ export default function Home() {
   const [searchedUsername, setSearchedUsername] = useState("");
   const [showVariants, setShowVariants] = useState(false);
   const [activeFilter, setActiveFilter] = useState("all");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState("");
+  const [preparedUrls, setPreparedUrls] = useState<Record<string, string>>({});
+  const [searchedVariants, setSearchedVariants] = useState<string[]>([]);
 
   const normalized = username.trim().replace(/^@/, "");
-  const variants = useMemo(() => makeVariants(searchedUsername || normalized), [searchedUsername, normalized]);
   const visiblePlatforms = mode === "platform"
     ? PLATFORMS.filter((platform) => platform.id === selectedPlatform)
     : activeFilter === "all"
       ? PLATFORMS
       : PLATFORMS.filter((platform) => platform.id === activeFilter);
 
-  function runSearch(event: FormEvent<HTMLFormElement>) {
+  async function runSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!normalized || !authorized) return;
-    setSearched(true);
-    setSearchedUsername(normalized);
-    setShowVariants(false);
-    setActiveFilter(mode === "global" ? "all" : selectedPlatform);
+    if (!normalized || !authorized || isSearching) return;
+
+    setIsSearching(true);
+    setSearchError("");
+    try {
+      const response = await fetch("/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: normalized,
+          platform: mode === "platform" ? selectedPlatform : undefined,
+          authorized,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(typeof payload.error === "string" ? payload.error : "Search could not be completed.");
+      }
+
+      const urls = Object.fromEntries(
+        (payload.results as Array<{ platform_id: string; profile_url: string }>).map((item) => [item.platform_id, item.profile_url]),
+      );
+      setPreparedUrls(urls);
+      setSearchedVariants(Array.isArray(payload.variants) ? payload.variants : []);
+      setSearched(true);
+      setSearchedUsername(payload.query);
+      setShowVariants(false);
+      setActiveFilter(mode === "global" ? "all" : selectedPlatform);
+    } catch (error) {
+      setSearched(false);
+      setSearchError(error instanceof Error ? error.message : "Unexpected search error.");
+    } finally {
+      setIsSearching(false);
+    }
   }
 
   function profileUrl(platform: Platform, handle: string) {
-    return platform.profileUrl(handle);
+    return preparedUrls[platform.id] || platform.profileUrl(handle);
   }
 
   function exportReport(format: "json" | "csv") {
@@ -98,8 +129,9 @@ export default function Home() {
             <div className="panel-heading"><div><span className="eyebrow">NEW INVESTIGATION</span><h2>Start with a username</h2></div><span className="step-tag">01 / SEARCH</span></div>
             <form onSubmit={runSearch}>
               <label htmlFor="username">USERNAME OR HANDLE</label>
-              <div className="input-wrap"><span className="at-sign">@</span><input id="username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder="e.g. arthurleywin" autoComplete="off" /><button type="submit" disabled={!normalized || !authorized}>Initiate search <span>↗</span></button></div>
+              <div className="input-wrap"><span className="at-sign">@</span><input id="username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder="e.g. arthurleywin" autoComplete="off" /><button type="submit" disabled={!normalized || !authorized || isSearching}>{isSearching ? "Preparing..." : "Initiate search"} <span>↗</span></button></div>
             </form>
+            {searchError && <p className="search-error" role="alert">{searchError}</p>}
             <label className="authorization-check"><input type="checkbox" checked={authorized} onChange={(event) => setAuthorized(event.target.checked)} /><span>I own this account or have explicit permission to audit it.</span></label>
             <div className="search-options">
               <div className="mode-switch" role="group" aria-label="Search mode">
@@ -123,7 +155,7 @@ export default function Home() {
             <div className="disclaimer">These are candidate profile URLs, not confirmed account matches. A platform may redirect, require sign-in, restrict access or return an inconclusive response. Verify identity using the platform itself and do not infer that a handle is available from a failed request.</div>
             <div className="export-actions"><span>EXPORT CURRENT VIEW</span><button type="button" onClick={() => exportReport("json")}>Download JSON ↧</button><button type="button" onClick={() => exportReport("csv")}>Download CSV ↧</button></div>
             <button className="variant-toggle" onClick={() => setShowVariants((value) => !value)} type="button">{showVariants ? "Hide" : "Explore"} username variants <span>{showVariants ? "−" : "+"}</span></button>
-            {showVariants && <div className="variant-list">{variants.map((variant) => <div key={variant}><span>@{variant}</span><button onClick={() => setUsername(variant)} type="button">Use handle ↗</button></div>)}</div>}
+            {showVariants && <div className="variant-list">{searchedVariants.map((variant) => <div key={variant}><span>@{variant}</span><button onClick={() => setUsername(variant)} type="button">Use handle ↗</button></div>)}</div>}
           </section>}
           <footer><span>THE CRIMSON EYE OF GOD</span><span>PUBLIC DATA · RESPONSIBLE RESEARCH · 2026</span></footer>
         </div>
