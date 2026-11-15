@@ -6,10 +6,12 @@ A privacy-conscious OSINT web workspace for discovering **publicly accessible us
 
 ## Current MVP
 
-- Authorized self-audit search catalogue across Instagram, Telegram, Facebook, X, Threads, TikTok, YouTube, Linktree and LinkedIn.
+- Authorized self-audit search catalogue across Instagram, Telegram, Facebook, X, Threads, TikTok, YouTube, Linktree, LinkedIn and GitHub.
 - Platform explorer with per-platform filtering.
 - Validated Next.js search endpoint (`POST /api/search`) used by the interface, with authorization confirmation, handle validation and clear error responses.
 - Username variant generation.
+- Dedicated results page with platform cards and a selected-result detail panel.
+- GitHub public avatar and basic profile fields retrieved through GitHub's official public API.
 - Direct links to public profile routes.
 - Clear status labels: **Link prepared / manual verification required**. A profile URL returning an error, redirect, login wall or anti-bot challenge is not treated as proof that a username is available.
 - Ash-grey premium Light Intelligence interface with muted crimson accents.
@@ -30,7 +32,7 @@ Open http://localhost:3000.
 
 ## Search endpoint
 
-The frontend submits searches to its own `/api/search` route. This route prepares candidate profile links and username variants without contacting social platforms or checking whether an account exists. The standalone FastAPI service remains available for integrations and local API testing.
+The frontend submits searches to its own `/api/search` route. It prepares candidate links and username variants. For GitHub only, it queries the official public user endpoint to retrieve an exact username match, avatar and basic public profile fields. Other platforms are not scraped and remain unverified candidate links. The standalone FastAPI service remains available for integrations and local API testing.
 
 ## Run the API
 
@@ -50,7 +52,7 @@ The interface requires the user to confirm that they own the account or have exp
 
 ## Platform limitations
 
-Each platform has different rules and technical restrictions. This MVP generates profile links and variants; it does not scrape pages or download profile photos. Future connectors must use official APIs or explicitly permitted public interfaces, respect rate limits and terms, and expose uncertainty rather than guessing.
+Each platform has different rules and technical restrictions. This MVP generates profile links and variants. GitHub profile details are retrieved through its official public API; profile photos and details are not scraped from other platforms. Future connectors must use official APIs or explicitly permitted public interfaces, respect rate limits and terms, and expose uncertainty rather than guessing.
 
 ## Project structure
 
