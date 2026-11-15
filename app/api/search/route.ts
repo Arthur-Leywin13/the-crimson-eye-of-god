@@ -50,6 +50,37 @@ export async function POST(request: Request) {
     selected = [platform];
   }
 
+  let githubProfile: Record<string, unknown> | null = null;
+  let githubStatus: "exact_match" | "not_found" | "unavailable" = "unavailable";
+  if (selected.some((platform) => platform.id === "github")) {
+    try {
+      const githubResponse = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`, {
+        headers: { Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" },
+        cache: "no-store",
+      });
+      if (githubResponse.ok) {
+        const profile = await githubResponse.json();
+        githubProfile = {
+          login: profile.login,
+          name: profile.name,
+          avatar_url: profile.avatar_url,
+          html_url: profile.html_url,
+          bio: profile.bio,
+          blog: profile.blog,
+          company: profile.company,
+          public_repos: profile.public_repos,
+          followers: profile.followers,
+          following: profile.following,
+        };
+        githubStatus = profile.login?.toLowerCase() === username.toLowerCase() ? "exact_match" : "unavailable";
+      } else if (githubResponse.status === 404) {
+        githubStatus = "not_found";
+      }
+    } catch {
+      githubStatus = "unavailable";
+    }
+  }
+
   return NextResponse.json({
     query: username,
     mode: selected.length === 1 ? "platform" : "global",
@@ -58,8 +89,9 @@ export async function POST(request: Request) {
       platform: platform.name,
       username,
       profile_url: platform.profileUrl(username),
-      status: "link_prepared",
-      verification: "manual_required",
+      status: platform.id === "github" ? githubStatus : "link_prepared",
+      verification: platform.id === "github" ? githubStatus : "manual_required",
+      profile: platform.id === "github" ? githubProfile : null,
     })),
     variants: makeVariants(username),
     notice: "Candidate profile URLs only. Account existence and availability are not verified.",
