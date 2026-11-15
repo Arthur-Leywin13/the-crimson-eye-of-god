@@ -1,5 +1,5 @@
 export function makeVariants(input: string): string[] {
-  const base = input.trim().replace(/^@/, "").replace(/\\s+/g, "");
+  const base = input.trim().replace(/^@/, "").replace(/\s+/g, "");
   if (!base) return [];
 
   const candidates = [
