@@ -31,6 +31,7 @@ PLATFORMS = {
     "youtube": ("YouTube", "https://www.youtube.com/@{handle}"),
     "linktree": ("Linktree", "https://linktr.ee/{handle}"),
     "linkedin": ("LinkedIn", "https://www.linkedin.com/in/{handle}"),
+    "github": ("GitHub", "https://github.com/{handle}"),
 }
 
 
