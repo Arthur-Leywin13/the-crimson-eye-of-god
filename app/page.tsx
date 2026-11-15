@@ -1,0 +1,99 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { PLATFORMS, type Platform } from "@/lib/platforms";
+import { makeVariants } from "@/lib/variants";
+
+type Mode = "global" | "platform";
+
+export default function Home() {
+  const [username, setUsername] = useState("");
+  const [mode, setMode] = useState<Mode>("global");
+  const [selectedPlatform, setSelectedPlatform] = useState(PLATFORMS[0].id);
+  const [searched, setSearched] = useState(false);
+  const [showVariants, setShowVariants] = useState(false);
+
+  const normalized = username.trim().replace(/^@/, "");
+  const variants = useMemo(() => makeVariants(normalized), [normalized]);
+  const visiblePlatforms = mode === "global"
+    ? PLATFORMS
+    : PLATFORMS.filter((platform) => platform.id === selectedPlatform);
+
+  function runSearch(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!normalized) return;
+    setSearched(true);
+    setShowVariants(false);
+  }
+
+  function profileUrl(platform: Platform, handle: string) {
+    return platform.profileUrl(handle);
+  }
+
+  return (
+    <main className="shell">
+      <aside className="sidebar">
+        <a className="brand" href="#" aria-label="The Crimson Eye of God home">
+          <span className="brand-mark"><span /></span>
+          <span className="brand-copy"><strong>THE CRIMSON EYE</strong><small>PUBLIC INTELLIGENCE</small></span>
+        </a>
+        <div className="side-label">WORKSPACE</div>
+        <a className="side-link active" href="#search"><span>⌕</span> Username discovery</a>
+        <a className="side-link" href="#platforms"><span>◫</span> Platform explorer</a>
+        <a className="side-link" href="#results"><span>▤</span> Search catalogue</a>
+        <div className="side-bottom">
+          <div className="privacy-card"><span className="privacy-dot" /> PUBLIC SOURCES ONLY<p>Search links are generated for public profile routes. Restricted or inconclusive pages are never presented as confirmed accounts.</p></div>
+          <div className="side-version">EARLY ACCESS <span>v0.1.0</span></div>
+        </div>
+      </aside>
+
+      <section className="main-area">
+        <header className="topbar">
+          <div><span className="eyebrow">INTELLIGENCE WORKSPACE</span><span className="top-title">Username discovery</span></div>
+          <div className="top-right"><span className="status-indicator" /> SYSTEM READY <span className="avatar">CE</span></div>
+        </header>
+
+        <div className="content">
+          <section className="intro" id="search">
+            <div className="intro-copy">
+              <div className="eyebrow">IDENTITY RESEARCH / 001</div>
+              <h1>Every identity<br /><em>leaves a trace.</em></h1>
+              <p>Explore publicly accessible profile links across social platforms. One username, one structured view.</p>
+            </div>
+            <div className="eye-art" aria-hidden="true"><div className="eye-ring"><div className="eye-core" /></div><span>OBSERVE · VERIFY · DOCUMENT</span></div>
+          </section>
+
+          <section className="search-panel">
+            <div className="panel-heading"><div><span className="eyebrow">NEW INVESTIGATION</span><h2>Start with a username</h2></div><span className="step-tag">01 / SEARCH</span></div>
+            <form onSubmit={runSearch}>
+              <label htmlFor="username">USERNAME OR HANDLE</label>
+              <div className="input-wrap"><span className="at-sign">@</span><input id="username" value={username} onChange={(event) => setUsername(event.target.value)} placeholder="e.g. arthurleywin" autoComplete="off" /><button type="submit" disabled={!normalized}>Initiate search <span>↗</span></button></div>
+            </form>
+            <div className="search-options">
+              <div className="mode-switch" role="group" aria-label="Search mode">
+                <button className={mode === "global" ? "selected" : ""} onClick={() => setMode("global")} type="button">Global search <span>All platforms</span></button>
+                <button className={mode === "platform" ? "selected" : ""} onClick={() => setMode("platform")} type="button">Single platform <span>Focused search</span></button>
+              </div>
+              {mode === "platform" && <select value={selectedPlatform} onChange={(event) => setSelectedPlatform(event.target.value)} aria-label="Choose platform">{PLATFORMS.map((platform) => <option key={platform.id} value={platform.id}>{platform.name}</option>)}</select>}
+            </div>
+          </section>
+
+          <section className="platform-section" id="platforms">
+            <div className="section-heading"><div><span className="eyebrow">NETWORK COVERAGE</span><h2>Platform catalogue</h2></div><span className="count-pill">09 PLATFORMS</span></div>
+            <div className="platform-grid">{PLATFORMS.map((platform, index) => <div className="platform-tile" key={platform.id}><span className="platform-index">0{index + 1}</span><span className="platform-symbol">{platform.symbol}</span><span className="platform-name">{platform.name}</span><span className="platform-arrow">↗</span></div>)}</div>
+          </section>
+
+          {searched && <section className="results-section" id="results">
+            <div className="section-heading"><div><span className="eyebrow">INVESTIGATION OUTPUT</span><h2>Search catalogue</h2></div><span className="count-pill">{visiblePlatforms.length.toString().padStart(2, "0")} DESTINATIONS</span></div>
+            <div className="result-summary"><div><span className="summary-label">SEARCHED HANDLE</span><strong>@{normalized}</strong></div><div><span className="summary-label">SEARCH MODE</span><strong>{mode === "global" ? "Global discovery" : "Single platform"}</strong></div><div><span className="summary-label">LINKS PREPARED</span><strong>{visiblePlatforms.length.toString().padStart(2, "0")}</strong></div></div>
+            <div className="results-list">{visiblePlatforms.map((platform) => <article className="result-row" key={platform.id}><div className="result-platform"><span className="platform-symbol">{platform.symbol}</span><div><strong>{platform.name}</strong><small>{platform.domain}</small></div></div><div className="result-state"><span className="state-dot" /> Link prepared · verification required</div><a className="open-link" href={profileUrl(platform, normalized)} target="_blank" rel="noreferrer">Open profile <span>↗</span></a></article>)}</div>
+            <div className="disclaimer">These are candidate profile URLs, not confirmed account matches. A platform may redirect, require sign-in, restrict access or return an inconclusive response. Verify identity using the platform itself and do not infer that a handle is available from a failed request.</div>
+            <button className="variant-toggle" onClick={() => setShowVariants((value) => !value)} type="button">{showVariants ? "Hide" : "Explore"} username variants <span>{showVariants ? "−" : "+"}</span></button>
+            {showVariants && <div className="variant-list">{variants.map((variant) => <div key={variant}><span>@{variant}</span><button onClick={() => setUsername(variant)} type="button">Use handle ↗</button></div>)}</div>}
+          </section>}
+          <footer><span>THE CRIMSON EYE OF GOD</span><span>PUBLIC DATA · RESPONSIBLE RESEARCH · 2026</span></footer>
+        </div>
+      </section>
+    </main>
+  );
+}
