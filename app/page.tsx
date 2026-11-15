@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { FormEvent } from "react";
 import { PLATFORMS, type Platform } from "@/lib/platforms";
 import { makeVariants } from "@/lib/variants";
 
@@ -19,7 +20,7 @@ export default function Home() {
     ? PLATFORMS
     : PLATFORMS.filter((platform) => platform.id === selectedPlatform);
 
-  function runSearch(event: React.FormEvent<HTMLFormElement>) {
+  function runSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!normalized) return;
     setSearched(true);
