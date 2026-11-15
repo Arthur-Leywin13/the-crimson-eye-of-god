@@ -49,7 +49,7 @@ export default function Home() {
     const csv = [
       ["platform", "username", "profile_url", "status", "verification"],
       ...rows.map((row) => [row.platform, row.username, row.profile_url, row.status, row.verification]),
-    ].map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(",")).join("\\n");
+    ].map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(",")).join("\n");
     const content = format === "json" ? JSON.stringify({ query: searchedUsername, results: rows, note: "Candidate links only; profiles are not confirmed." }, null, 2) : csv;
     const blob = new Blob([content], { type: format === "json" ? "application/json" : "text/csv;charset=utf-8" });
     const objectUrl = URL.createObjectURL(blob);
@@ -57,7 +57,7 @@ export default function Home() {
     anchor.href = objectUrl;
     anchor.download = `crimson-eye-${searchedUsername}-${format}.${format}`;
     anchor.click();
-    URL.revokeObjectURL(objectUrl);
+    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
   }
 
   return (
