@@ -61,10 +61,10 @@ export async function POST(request: Request) {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: \`Bearer \${apiKey}\`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        query: \`"\${username}"\`,
+        query: `"${username}"`,
         search_depth: "basic",
         topic: "general",
         max_results: 10,
