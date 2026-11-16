@@ -146,7 +146,7 @@ export default function ResultsClient({ username, platform }: { username: string
                   </div>
                   {current.platform_id === "github" && current.profile ? (
                     <div className="public-fields">
-                      <span className="match-banner">Exact username returned by GitHub's official public API</span>
+                      <span className="match-banner">Exact username returned by GitHub&apos;s official public API</span>
                       {current.profile.bio && <div><small>BIO</small><p>{current.profile.bio}</p></div>}
                       {current.profile.company && <div><small>COMPANY</small><p>{current.profile.company}</p></div>}
                       {current.profile.blog && <div><small>WEBSITE</small><p><a href={current.profile.blog.startsWith("http") ? current.profile.blog : `https://${current.profile.blog}`} target="_blank" rel="noreferrer">{current.profile.blog}</a></p></div>}
@@ -168,7 +168,7 @@ export default function ResultsClient({ username, platform }: { username: string
           <section className="variant-suggestions">
             <span className="eyebrow">USERNAME VARIANTS</span>
             <h2>Possible variations — not searched</h2>
-            <p>These are spelling suggestions only. They are not treated as matches and are not checked against other people's profiles.</p>
+            <p>These are spelling suggestions only. They are not treated as matches and are not checked against other people&apos;s profiles.</p>
             <div>{variants.filter((value) => value.toLowerCase() !== username.toLowerCase()).map((value) => <span key={value}>@{value}</span>)}</div>
           </section>
         )}
