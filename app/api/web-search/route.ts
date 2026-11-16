@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 
 const HANDLE_PATTERN = /^[A-Za-z0-9._-]{2,30}$/;
 
-type BraveResult = {
+type TavilyResult = {
   title?: string;
   url?: string;
-  description?: string;
+  content?: string;
 };
 
 function cleanSnippet(value: string | undefined): string {
@@ -45,28 +45,36 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Use a valid 2–30 character username." }, { status: 422 });
   }
 
-  const apiKey = process.env.BRAVE_SEARCH_API_KEY;
+  const apiKey = process.env.TAVILY_API_KEY;
   if (!apiKey) {
     return NextResponse.json({
       configured: false,
       query: username,
       results: [],
-      message: "Web search is not configured. Add BRAVE_SEARCH_API_KEY to the server environment.",
+      message: "Web search is not configured. Add TAVILY_API_KEY to the server environment.",
     });
   }
 
   try {
-    const url = new URL("https://api.search.brave.com/res/v1/web/search");
-    url.searchParams.set("q", `"${username}"`);
-    url.searchParams.set("count", "10");
-    url.searchParams.set("country", "HT");
-    url.searchParams.set("search_lang", "fr");
-    url.searchParams.set("safesearch", "strict");
-
-    const response = await fetch(url, {
-      headers: { Accept: "application/json", "X-Subscription-Token": apiKey },
+    const response = await fetch("https://api.tavily.com/search", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: \`Bearer \${apiKey}\`,
+      },
+      body: JSON.stringify({
+        query: \`"\${username}"\`,
+        search_depth: "basic",
+        topic: "general",
+        max_results: 10,
+        include_answer: false,
+        include_raw_content: false,
+        include_images: false,
+        country: "haiti",
+      }),
       cache: "no-store",
-      signal: AbortSignal.timeout(10000),
+      signal: AbortSignal.timeout(12000),
     });
 
     if (!response.ok) {
@@ -77,19 +85,23 @@ export async function POST(request: Request) {
     }
 
     const payload = await response.json();
-    const rawResults = (payload?.web?.results ?? []) as BraveResult[];
+    const rawResults = (payload?.results ?? []) as TavilyResult[];
     const results = rawResults
       .filter((item) => typeof item.title === "string" && typeof item.url === "string")
       .slice(0, 10)
-      .map((item) => {
-        let domain = "";
-        try { domain = new URL(item.url as string).hostname.replace(/^www\./, ""); } catch { /* invalid URL */ }
-        return {
-          title: (item.title as string).slice(0, 180),
-          url: item.url,
-          domain,
-          snippet: cleanSnippet(item.description),
-        };
+      .flatMap((item) => {
+        try {
+          const parsedUrl = new URL(item.url as string);
+          if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") return [];
+          return [{
+            title: (item.title as string).slice(0, 180),
+            url: parsedUrl.toString(),
+            domain: parsedUrl.hostname.replace(/^www\./, ""),
+            snippet: cleanSnippet(item.content),
+          }];
+        } catch {
+          return [];
+        }
       });
 
     return NextResponse.json({
