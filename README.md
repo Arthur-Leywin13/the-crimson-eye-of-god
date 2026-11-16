@@ -8,11 +8,11 @@ A privacy-conscious OSINT web workspace for discovering **publicly accessible us
 
 - Authorized self-audit search catalogue across Instagram, Telegram, Facebook, X, Threads, TikTok, YouTube, Linktree, LinkedIn and GitHub.
 - Platform explorer with per-platform filtering.
-- Validated Next.js search endpoint (`POST /api/search`) used by the interface, with authorization confirmation, handle validation and clear error responses.
+- Validated Next.js search endpoint (\`POST /api/search\`) used by the interface, with authorization confirmation, handle validation and clear error responses.
 - Username variant generation.
 - Dedicated results page with platform cards and a selected-result detail panel.
 - GitHub public avatar and basic profile fields retrieved through GitHub's official public API.
-- Public Web Search section powered by Brave Search API, showing indexed page titles, short snippets and original source links (no page scraping or identity matching).
+- Public Web Search section powered by Tavily Search API, showing indexed page titles, short snippets and original source links (no page scraping or identity matching).
 - Direct links to public profile routes.
 - Clear status labels: **Link prepared / manual verification required**. A profile URL returning an error, redirect, login wall or anti-bot challenge is not treated as proof that a username is available.
 - Ash-grey premium Light Intelligence interface with muted crimson accents.
@@ -24,36 +24,36 @@ A privacy-conscious OSINT web workspace for discovering **publicly accessible us
 
 ## Run the frontend
 
-```bash
+\`\`\`bash
 npm install
 npm run dev
-```
+\`\`\`
 
 Open http://localhost:3000.
 
 ## Search endpoint
 
-The frontend submits searches to its own `/api/search` route. It prepares candidate links and username variants. The results page also offers a separate, manual public-web-index search through `POST /api/web-search`. For GitHub only, it queries the official public user endpoint to retrieve an exact username match, avatar and basic public profile fields. Other platforms are not scraped and remain unverified candidate links. The web search route uses Brave Search API and requires the server-side `BRAVE_SEARCH_API_KEY` environment variable. It returns search-index titles, short snippets and source URLs only; it does not crawl pages or establish that results belong to the same person. The standalone FastAPI service remains available for integrations and local API testing.
+The frontend submits searches to its own \`/api/search\` route. It prepares candidate links and username variants. The results page also offers a separate, manual public-web-index search through \`POST /api/web-search\`. For GitHub only, it queries the official public user endpoint to retrieve an exact username match, avatar and basic public profile fields. Other platforms are not scraped and remain unverified candidate links. The web search route uses Tavily Search API and requires the server-side \`TAVILY_API_KEY\` environment variable. It returns search-index titles, short snippets and source URLs only; it does not crawl pages or establish that results belong to the same person. The standalone FastAPI service remains available for integrations and local API testing.
 
 ## Configure public web search
 
-Create a Brave Search API key in the Brave Search API dashboard, then add it as a server-side environment variable:
+Create a Tavily API key in the Tavily dashboard, then add it as a server-side environment variable in your hosting provider or local environment:
 
-```env
-BRAVE_SEARCH_API_KEY=your_key_here
-```
+\`\`\`env
+TAVILY_API_KEY=your_key_here
+\`\`\`
 
-Do not commit the key, expose it in frontend code, or paste it into public issues. Without this variable, the public web search panel displays a setup message and the rest of the app continues to work. Brave API documentation: https://api-dashboard.search.brave.com/app/documentation/web-search.
+Do not commit the key, expose it in frontend code, or paste it into public issues. Without this variable, the public web search panel displays a setup message and the rest of the app continues to work. Tavily Search API documentation: https://docs.tavily.com/documentation/api-reference/endpoint/search.
 
 ## Run the API
 
-```bash
+\`\`\`bash
 python -m venv .venv
-# Windows: .venv\\Scripts\\activate
+# Windows: .venv\Scripts\activate
 # macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn api.main:app --reload --port 8000
-```
+\`\`\`
 
 API docs: http://localhost:8000/docs
 
@@ -67,12 +67,12 @@ Each platform has different rules and technical restrictions. This MVP generates
 
 ## Project structure
 
-```
+\`\`\`
 app/              Next.js pages and styles
 lib/              Platform catalogue and username variants
 api/              FastAPI service
 requirements.txt  Python dependencies
-```
+\`\`\`
 
 ## License
 
