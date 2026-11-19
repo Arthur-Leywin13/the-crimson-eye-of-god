@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { PLATFORMS, type Platform } from "@/lib/platforms";
+import AdSenseAd from "@/components/adsense-ad";
 
 type Mode = "global" | "platform";
 
@@ -128,6 +129,8 @@ export default function Home() {
             </div>
             <div className="eye-art" aria-hidden="true"><div className="eye-ring"><div className="eye-core" /></div><span>OBSERVE · VERIFY · DOCUMENT</span></div>
           </section>
+
+          <AdSenseAd slot={process.env.NEXT_PUBLIC_ADSENSE_HOME_SLOT ?? ""} />
 
           <section className="search-panel">
             <div className="panel-heading"><div><span className="eyebrow">NEW INVESTIGATION</span><h2>Start with a username</h2></div><span className="step-tag">01 / SEARCH</span></div>

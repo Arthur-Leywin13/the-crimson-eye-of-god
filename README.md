@@ -90,6 +90,20 @@ TAVILY_API_KEY=your_key_here
 
 Do not commit the key, expose it in frontend code, or paste it in public issues. Without this variable, the public web search panel shows a setup message and the rest of the app keeps working. See the [Tavily Search API docs](https://docs.tavily.com/documentation/api-reference/endpoint/search).
 
+## Google AdSense
+
+The app includes optional AdSense placements on the home and results pages. Ads remain hidden until the publisher ID and the corresponding ad-unit slot IDs are configured.
+
+1. Create and verify your site in [Google AdSense](https://adsense.google.com/).
+2. After Google approves the site, create two responsive display ad units (home and results) and copy their slot IDs.
+3. Set the following environment variables in your hosting provider (and locally in `.env.local`):
+   - `NEXT_PUBLIC_ADSENSE_CLIENT_ID` — publisher ID, in the `ca-pub-...` format.
+   - `NEXT_PUBLIC_ADSENSE_HOME_SLOT` — home-page ad unit slot ID.
+   - `NEXT_PUBLIC_ADSENSE_RESULTS_SLOT` — results-page ad unit slot ID.
+4. Redeploy the site. Do not commit real publisher or slot values to the repository.
+
+See `.env.example` for the variable names. The integration does not bypass Google's site review or guarantee that ads will be served; the site must comply with AdSense policies and have the required privacy disclosures/consent setup for its audience.
+
 ## Responsible use
 
 The interface requires the user to confirm that they own the account or have explicit permission to audit it. The FastAPI endpoint independently enforces the same flag and returns **HTTP 403** when it is absent.
