@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { PLATFORMS } from "@/lib/platforms";
+import AdSenseAd from "@/components/adsense-ad";
 
 type PublicProfile = {
   login?: string;
@@ -112,6 +113,8 @@ export default function ResultsClient({ username, platform }: { username: string
           <h1>Results for <em>@{username}</em></h1>
           <p>Exact matches and candidate profile links are shown separately. A prepared link is not proof that an account exists.</p>
         </div>
+
+        <AdSenseAd slot={process.env.NEXT_PUBLIC_ADSENSE_RESULTS_SLOT ?? ""} />
 
         {loading && <div className="results-message">Checking available public profile information…</div>}
         {error && <div className="results-message error" role="alert">{error}</div>}
