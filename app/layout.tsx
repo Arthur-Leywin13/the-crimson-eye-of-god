@@ -12,6 +12,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          id="monetag-zone-314592"
+          strategy="beforeInteractive"
+          src="https://quge5.com/88/tag.min.js"
+          data-zone="314592"
+          data-cfasync="false"
+        />
+      </head>
       <body>
         {adsenseClientId && (
           <Script
@@ -21,12 +30,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
           />
         )}
-        <Script
-          id="monetag-zone-12319579"
-          strategy="afterInteractive"
-          src="https://nap5k.com/tag.min.js"
-          data-zone="12319579"
-        />
         {children}
       </body>
     </html>
