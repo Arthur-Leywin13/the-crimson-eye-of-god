@@ -21,6 +21,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
           />
         )}
+        <Script
+          id="monetag-zone-12319579"
+          strategy="afterInteractive"
+          src="https://nap5k.com/tag.min.js"
+          data-zone="12319579"
+        />
         {children}
       </body>
     </html>
